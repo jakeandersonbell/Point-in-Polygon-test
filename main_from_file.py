@@ -1,13 +1,29 @@
 # Import classes
 import geometry_class as geo
+import csv
+import matplotlib.pyplot as plt
+import time
 
 # Read a list of x, y coordinates from a csv and create a polygon object
 #   With open csv as file
 #       Make list of points into a polygon object
+# Make these methods in geometry???
+with open('input.csv', 'r') as file:
+    data = csv.reader(file)
+    next(data)  # This skips the csv header
+    poly1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data])  # Reads float(rows) into polygon object
 
 # Read a list of x, y coordinates from a csv to create a list of points
-#   With open csv r as file
 #       make list of points into a list of point objects
+with open('input.csv', 'r') as file:
+    data = csv.reader(file)
+    next(data)  # This skips the csv header
+    # Same as before except we are executing the make_points() Polygon method
+    points1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data]).make_points()
+
+plt.fill(poly1.all_x(), poly1.all_y())
+plt.plot([p.get_x() for p in points1], [p.get_y() for p in points1], 'ro')
+plt.show()
 
 # Categorises point as being inside, outside or boundary
 #   Check minimum bounding rectangle
