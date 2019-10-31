@@ -8,25 +8,29 @@ import time
 #   With open csv as file
 #       Make list of points into a polygon object
 # Make these methods in geometry???
-with open('input.csv', 'r') as file:
+with open('bb_test_square.csv', 'r') as file:
     data = csv.reader(file)
     next(data)  # This skips the csv header
-    poly1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data])  # Reads float(rows) into polygon object
+    pl1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data])  # Reads float(rows) into polygon object
 
 # Read a list of x, y coordinates from a csv to create a list of points
 #       make list of points into a list of point objects
-with open('input.csv', 'r') as file:
+with open('bb_test_point.csv', 'r') as file:
     data = csv.reader(file)
     next(data)  # This skips the csv header
-    # Same as before except we are executing the make_points() Polygon method
-    points1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data]).make_points()
-
-plt.fill(poly1.all_x(), poly1.all_y())
-plt.plot([p.get_x() for p in points1], [p.get_y() for p in points1], 'ro')
-plt.show()
+    # Same as before except we are executing the make_points() Polygon method - not the mot intuitive???
+    ps1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data]).make_points()
 
 # Categorises point as being inside, outside or boundary
 #   Check minimum bounding rectangle
+for point in ps1:
+    if min(pl1.all_x()) < point.get_x() < max(pl1.all_x()) and min(pl1.all_y()) < point.get_y() < max(pl1.all_y()):
+        point.set_bb_rel(True)
+    else:
+        point.set_bb_rel(False)
+
+for p in ps1:
+    print(p.get_bb_rel())
 #       if min_x < point.get_x() < max_x and min_y < point.get_y() < max_y:
 #           point in bb
 #       else:
