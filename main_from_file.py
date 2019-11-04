@@ -1,9 +1,7 @@
-# Import classes
 import geometry_class as geo
 import csv
 import matplotlib.pyplot as plt
 import math
-import time
 
 # Read a list of x, y coordinates from a csv and create a polygon object
 #   With open csv as file
@@ -13,12 +11,10 @@ with open('polygon.csv', 'r') as file:
     data = [d.strip().split(',') for d in file.readlines()[1:]]  # This skips the csv header, creates a stripped list
     pl1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data])  # Reads float(rows) into polygon object
 
-
 # Read a list of x, y coordinates from a csv to create a list of points
 #       make list of points into a list of point objects
 with open('input.csv', 'r') as file:
-    data = csv.reader(file)
-    next(data)  # This skips the csv header
+    data = [d.strip().split(',') for d in file.readlines()[1:]]  # This skips the csv header
     # Same as before except we are executing the make_points() Polygon method - not the most intuitive???
     ps1 = geo.Polygon("Name", [list(map(float, row[1:3])) for row in data]).make_points()
 
@@ -43,48 +39,45 @@ for line in pl1.get_lines():  # Loop through lines
             else:
                 point.set_boundary_rel(False)
 
-for point in ps1:
-    print(str(ps1.index(point)) + str(point.get_boundary_rel()))
-
 rays = [geo.Line("Ray "+str(ps1.index(p)+1), p.get_coords(), [math.inf, p.get_y()]) for p in ps1]
 
 for ray in rays:  # [x1, y1], [x inf, y2]
     for line in pl1.get_lines():  # [x3, y3], [x4, y4]
         y1, y3, y4 = ray.get_p1().get_y(), line.get_p1().get_y(), line.get_p2().get_y()  # y coords
         x1, x3, x4 = ray.get_p1().get_x(), line.get_p1().get_x(), line.get_p1().get_x()  # x coords
-        if line.is_parallel()[0] and ray.is_parallel()[0]:  # both X parallel
-            if line.get_p1().get_y() == ray.get_p1().get_y():  # ray and line at same y
-                if line.get_p1().get_x() >= ray.get_p1().get_x() >= line.get_p1().get_x() or \
-                        line.get_p1().get_x() <= ray.get_p1().get_x() <= line.get_p1().get_x():  # point is on a line or to the left of one
-                    # ray.increment()
-                    pass
-            else:  # Don't intersect
-                pass
+        if line.is_parallel()[0]:  # both X parallel
+            # if line.get_p1().get_y() == ray.get_p1().get_y():  # ray and line at same y
+            #     if line.get_p1().get_x() > ray.get_p1().get_x() > line.get_p2().get_x() or \
+            #             line.get_p1().get_x() < ray.get_p1().get_x() < line.get_p2().get_x():  # point is on a line or to the left of one
+            #         ray.increment()
+            #         pass
+            pass
         elif y3 < y1 < y4 or y3 > y1 > y4:  # point within line bounding box
             try:
                 x = x3 + (y1 * (x4 - x3))/((y4 - y3) + y3)  # line intersection equation
             except ZeroDivisionError:
                 x = x3
-            if x >= x1:  # ray intersects line
+            if x > x1:  # ray intersects line
                 ray.increment()
 
-    for i, point in enumerate(pl1.make_points()):
-        if ray.get_p1().get_y() == point.get_y() and ray.get_p1().get_x() < point.get_x():  # inline with vertex
-            if pl1.make_points()[i-1].get_y() == ray.get_p1().get_y() and pl1.make_points()[i+1].get_y() == ray.get_p1().get_y():
-                pass
-            elif pl1.make_points()[i-1].get_y() == ray.get_p1().get_y() and pl1.make_points()[i+1].get_y() == ray.get_p1().get_y():
+
+
+
+    for i, line in enumerate(pl1.get_lines()):
+        if ray.get_p1().get_y() == line.get_p1().get_y() and ray.get_p1().get_x() < line.get_p1().get_x():  # inline with vertex
+            if pl1.make_points()[i-1].get_y() < ray.get_p1().get_y() > pl1.make_points()[i+1].get_y() or \
+                    pl1.make_points()[i-1].get_y() > ray.get_p1().get_y() < pl1.make_points()[i+1].get_y():
                 pass
             elif pl1.make_points()[i-1].get_y() < ray.get_p1().get_y() < pl1.make_points()[i+1].get_y() or \
                     pl1.make_points()[i-1].get_y() > ray.get_p1().get_y() > pl1.make_points()[i+1].get_y():
+                # if not line.is_parallel()[0]:
                 ray.increment()  # Neighbouring vertices of intersected polygon vertex are above and below ray
-                print("abovebelow")
+            elif ray.get_count() % 2 == 1:  # Checks odd counts to see if they are intersecting vertex without entering shape
+                if pl1.make_points()[i-1].get_y() < ray.get_p1().get_y():
+                    ray.increment()
 
-    # for i, line in enumerate([l for l in pl1.get_lines() if not l.is_parallel()[0]]):
-    #     if ray.get_p1().get_y() == line.get_p1().get_y() and ray.get_p1().get_x() < line.get_p1().get_x():  # inline with vertex
-    #         if pl1.make_points()[i-1].get_y() <= ray.get_p1().get_y() <= pl1.make_points()[i+1].get_y() or \
-    #                 pl1.make_points()[i-1].get_y() >= ray.get_p1().get_y() >= pl1.make_points()[i+1].get_y():
-    #             ray.increment()  # Neighbouring vertices of intersected polygon vertex are above and below ray
-    #             print("abovebelow")
+
+
 
 
 plt.fill(pl1.all_x(), pl1.all_y())
