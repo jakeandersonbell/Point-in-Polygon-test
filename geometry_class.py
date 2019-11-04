@@ -21,11 +21,16 @@ class Point(Geometry):  # Points class to have methods get_x, get_y
         self.__in_bb = False
         self.__on_boundary = False
         self.__count = 0
+        self.__inside = False
 
     def get_x(self):
+        if self.__x == 0.0:
+            self.__x = int(self.__x)
         return self.__x
 
     def get_y(self):
+        if self.__y == 0.0:
+            self.__y = int(self.__y)
         return self.__y
 
     def get_coords(self):
@@ -42,6 +47,12 @@ class Point(Geometry):  # Points class to have methods get_x, get_y
 
     def get_boundary_rel(self):
         return self.__on_boundary
+
+    def set_inside(self, state):
+        self.__inside = state
+
+    def get_state(self):
+        return self.__inside
 
 
 class Line(Geometry):  # Construct line given a name and 2 points yx lists, then constructs point objects
@@ -68,7 +79,7 @@ class Line(Geometry):  # Construct line given a name and 2 points yx lists, then
                 parallel_y = True
             else:
                 parallel_y = False
-            return [parallel_x, parallel_y]
+        return [parallel_x, parallel_y]
 
     def increment(self):
         self.__count += 1
