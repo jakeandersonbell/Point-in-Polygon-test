@@ -48,7 +48,7 @@ class Point(Geometry):  # Points class to have methods get_x, get_y
     def get_boundary_rel(self):
         return self.__on_boundary
 
-    def set_inside(self, state):
+    def set_state(self, state):
         self.__inside = state
 
     def get_state(self):
