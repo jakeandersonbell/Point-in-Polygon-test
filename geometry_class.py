@@ -1,64 +1,71 @@
-import matplotlib.pyplot as plt
 import math
+
+
+def read_csv(file, geo_type, *name):  # Allows the creation of geo objects directly from a cvs read
+    with open(file, 'r') as file:
+        data = [d.strip().split(',') for d in
+                file.readlines()[1:]]  # This skips the csv header, creates a stripped list
+        shape = Geometry(name, [list(map(float, row[1:3])) for row in data])  # Reads float(rows) into polygon object
+    if geo_type.lower() == "points":
+        return shape.make_points()
+    elif geo_type.lower() == "polygon":
+        return shape.make_poly()
 
 
 class Geometry:  # The base class to hold name and name method
 
     # Define a class geometry with private name attribute
-    def __init__(self, name):
+    def __init__(self, name, points):
         self.__name = name
+        self.__points = points
 
     def get_name(self):
         return self.__name
 
+    def make_points(self):  # Returns a list of point objects
+        # Converts points list of coordinates to a list of Point objects, name increments with index +1
+        return [Point("Point " + str(self.__points.index(i) + 1), i[0], i[1]) for i in self.__points]
 
-class Point(Geometry):  # Points class to have methods get_x, get_y
+    def make_poly(self):
+        return Polygon(self.__name, self.__points)
+
+
+class Point:  # Points class to have methods get_x, get_y
 
     def __init__(self, name, x, y):
-        super().__init__(name)
+        self.__name = name
         self.__x = x
         self.__y = y
-        self.__in_bb = False
-        self.__on_boundary = False
         self.__count = 0
-        self.__inside = False
+        self.__state = False
+
+    def get_name(self):
+        return self.__name
 
     def get_x(self):
-        if self.__x == 0.0:
-            self.__x = int(self.__x)
         return self.__x
 
     def get_y(self):
-        if self.__y == 0.0:
-            self.__y = int(self.__y)
         return self.__y
 
-    def get_coords(self):
+    def get_coords(self):  # This method is useful for when converting between geometry objects
         return [self.__x, self.__y]
 
-    def set_bb_rel(self, state):  # bounding box relationship
-        self.__in_bb = state
-
-    def get_bb_rel(self):
-        return self.__in_bb
-
-    def set_boundary_rel(self, state):  # boundary relationship
-        self.__on_boundary = state
-
-    def get_boundary_rel(self):
-        return self.__on_boundary
-
     def set_state(self, state):
-        self.__inside = state
+        valid_states = ["Boundary", "Inside", "Outside", "in_bb"]
+        if state in valid_states or [v.lower() for v in valid_states]:
+            self.__state = state.lower()
+        else:
+            print("Invalid point state given")
 
     def get_state(self):
-        return self.__inside
+        return self.__state
 
 
-class Line(Geometry):  # Construct line given a name and 2 points yx lists, then constructs point objects
+class Line:  # Construct line given a name and 2 points yx lists, then constructs point objects
 
     def __init__(self, name, p1, p2):
-        super().__init__(name)
+        self.__name = name
         self.__p1 = Point(str(name) + ": 1", p1[0], p1[1])
         self.__p2 = Point(str(name) + ": 2", p2[0], p2[1])
         self.__count = 0
@@ -69,7 +76,7 @@ class Line(Geometry):  # Construct line given a name and 2 points yx lists, then
     def get_p2(self):
         return self.__p2
 
-    def is_parallel(self):  # Returns
+    def is_parallel(self):  # Returns a list of booleans for parallel state of each dimension
         if self.__p1.get_y() == self.__p2.get_y():
             parallel_x = True
         else:
@@ -88,16 +95,16 @@ class Line(Geometry):  # Construct line given a name and 2 points yx lists, then
         return self.__count
 
 
-class Polygon(Geometry):
+class Polygon:
     # Initialize object with a list of point pairs as second argument
-    # Currently has methods get_points and make points but will just use one of these for final program
-    # Will use both for testing and go with the best option
-    # Convert all points to float on construction
     def __init__(self, name, points):
-        super().__init__(name)
+        self.__name = name
         self.__points = points
 
-    def get_points(self):  # Return a list fo coordinate lists
+    def invert(self):  # Can invert shapes
+        self.__points = [[c * -1 for c in p] for p in self.__points]  # c = coordinate, p = point
+
+    def get_coords(self):  # Return a list fo coordinate pair lists
         return self.__points
 
     def make_points(self):  # Returns a list of point objects
@@ -115,10 +122,10 @@ class Polygon(Geometry):
         return lines
 
     def all_x(self):
-        return [i[0] for i in self.get_points()]
+        return [i[0] for i in self.get_coords()]
 
     def all_y(self):
-        return [i[1] for i in self.get_points()]
+        return [i[1] for i in self.get_coords()]
 
 
 class Triangle(Polygon):
