@@ -2,21 +2,6 @@
 """This file holds all classes and methods for geometry objects."""
 
 
-def read_csv(file, geo_type, *name):
-    """Creates geometry objects
-     directly from a cvs read.
-    """
-    with open(file, 'r') as file:
-        data = [d.strip().split(',') for d in
-                file.readlines()[1:]]  # This skips the csv header, creates a stripped list
-        # Reads rows into polygon object, map function used to apply float function to each str item in the row list
-        shape = MultiGeometry(name, [list(map(float, row[1:3])) for row in data])
-    if geo_type.lower() == 'points':
-        return shape.make_points()
-    elif geo_type.lower() == 'polygon':
-        return shape.make_poly()
-
-
 class Geometry:
     """Defines the base class to hold name,
     all objects hereafter inherit name.
@@ -42,8 +27,8 @@ class MultiGeometry(Geometry):
         # Converts points list of coordinates to a list of Point objects, name increments with index +1
         return [Point('Point ' + str(self.__points.index(i) + 1), i[0], i[1]) for i in self.__points]
 
-    def make_poly(self):  # Returns a Polygon object
-        return Polygon(self.__name, self.__points)
+    def make_poly(self, name):  # Returns a Polygon object
+        return Polygon(name, self.__points)
 
     def invert(self):  # Returns inverted coordinates
         return [[c * -1 for c in p] for p in self.__points]  # c = coordinate, p = point

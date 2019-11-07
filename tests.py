@@ -12,7 +12,7 @@ def in_bb(points, poly):
     """
     for p in points:
         if min(poly.all_x()) <= p.get_x() <= max(poly.all_x()) and min(poly.all_y()) <= p.get_y() <= max(poly.all_y()):
-            p.set_state("in_bb")
+            p.set_state('in_bb')
 
 
 # Check if points lie on parallel line
@@ -32,10 +32,10 @@ def on_line(points, poly):
                 sqr_len_ab = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)
                 if x1 <= x3 <= x2 or x1 >= x3 >= x2:  # Point is within line range
                     if y3 == y1 or 0 < dot_prod < sqr_len_ab:  # if point is on line
-                        point.set_state("Boundary")
+                        point.set_state('Boundary')
                 if y1 <= y3 <= y2 or y1 >= y3 >= y2:  # Point is within line range
                     if x3 == x1 or 0 < dot_prod < sqr_len_ab:  # if point is on line
-                        point.set_state("Boundary")
+                        point.set_state('Boundary')
 
 
 def special_cases(ray, poly, line, next_index, prev_index):
@@ -61,8 +61,8 @@ def ray_caster(points, poly):
     intersection algorithm then runs the special cases.
     """
     # Rays are lines constructed from points that haven't been classed as boundary
-    rays = [geo.Line("Ray " + str(points.index(p) + 1), p.get_coords(), [math.inf, p.get_y()]) for p in
-            [i for i in points if not i.get_state() == "Boundary"]]
+    rays = [geo.Line('Ray ' + str(points.index(p) + 1), p.get_coords(), [math.inf, p.get_y()]) for p in
+            [i for i in points if not i.get_state() == 'Boundary']]
     for ray in rays:  # [x1, y1], [x inf, y2]
         for line in poly.get_lines():  # [x3, y3], [x4, y4]
             y1, y3, y4 = ray.get_p1().get_y(), line.get_p1().get_y(), line.get_p2().get_y()
@@ -82,4 +82,11 @@ def ray_caster(points, poly):
         special_cases(ray, poly, poly.get_lines()[0], 1, -2)  # prev_l is second to last vertex as last vertex == first
 
         if int(ray.get_count()) % 2 == 1:
-            points[rays.index(ray)].set_state("Inside")
+            points[rays.index(ray)].set_state('Inside')
+
+
+def set_rem_state(points):
+    """Sets state for remaining points.
+    """
+    for point in [p for p in points if p.get_state() != 'inside' and p.get_state() != 'boundary']:
+        point.set_state('outside')
