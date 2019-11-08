@@ -1,6 +1,8 @@
 
 """This file holds all classes and methods for geometry objects."""
 
+from math import radians, cos, sin
+
 
 class Geometry:
     """Defines the base class to hold name,
@@ -23,6 +25,12 @@ class MultiGeometry(Geometry):
         self.__name = name
         self.__points = points
 
+    def all_x(self):  # Returns a list of x values
+        return [i[0] for i in self.__points]
+
+    def all_y(self):  # Returns a list of y values
+        return [i[1] for i in self.__points]
+
     def make_points(self):  # Returns a list of point objects
         # Converts points list of coordinates to a list of Point objects, name increments with index +1
         return [Point('Point ' + str(self.__points.index(i) + 1), i[0], i[1]) for i in self.__points]
@@ -31,10 +39,19 @@ class MultiGeometry(Geometry):
         return Polygon(name, self.__points)
 
     def invert(self):  # Returns inverted coordinates
-        return [[c * -1 for c in p] for p in self.__points]  # c = coordinate, p = point
+        return MultiGeometry(self.__name, [[c * -1 for c in p] for p in self.__points])  # c = coordinate, p = point
 
     def scale(self, factor):  # Returns coordinates scaled by a given factor
-        return [[c * factor for c in p] for p in self.__points]  # c = coordinate, p = point
+        return MultiGeometry(self.__name, [[c * factor for c in p] for p in self.__points])  # c = coordinate, p = point
+
+    def rotate(self, degrees, o):
+        angle = radians(degrees)
+        for i, p in enumerate(self.__points):
+            p[0] = ((p[0] - o[0]) * cos(angle)) - ((p[1] - o[1]) * sin(angle))
+            p[1] = ((p[0] - o[0]) * sin(angle)) + ((p[1] - o[1]) * cos(angle))
+            p[0] += o[0]
+            p[1] += o[1]
+            self.__points[i] = p
 
 
 class Point(Geometry):
@@ -116,6 +133,9 @@ class Polygon(MultiGeometry):
     def scale(self, factor):  # See MultiGeometry
         return Polygon(self.__name, super().scale(factor))
 
+    def rotate(self, radians):  # See MultiGeometry
+        return Polygon(self.__name, super().rotate(radians))
+
     def get_coords(self):  # Return a list of coordinate pair lists
         return self.__points
 
@@ -130,10 +150,10 @@ class Polygon(MultiGeometry):
         return lines
 
     def all_x(self):  # Returns a list of x values
-        return [i[0] for i in self.get_coords()]
+        return super().all_x()
 
     def all_y(self):  # Returns a list of y values
-        return [i[1] for i in self.get_coords()]
+        return super().all_y()
 
     def get_area(self):
         """Returns shape area based in the shoelace algorithm.

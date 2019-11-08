@@ -6,12 +6,20 @@ import math
 import matplotlib.pyplot as plt
 
 
+def all_tests(points, poly):
+    in_bb(points, poly)
+    on_line([p for p in points if p.get_state() == 'in_bb'], poly)
+    ray_caster([p for p in points if p.get_state() != 'boundary' and p.get_state() == 'in_bb'], poly)
+    set_rem_state(points)
+
+
 def in_bb(points, poly):
     """This function checks if point is inside
     or on boundary of bounding box rectangle
     """
+    min_x, max_x, min_y, max_y = min(poly.all_x()), max(poly.all_x()), min(poly.all_y()), max(poly.all_y())
     for p in points:
-        if min(poly.all_x()) <= p.get_x() <= max(poly.all_x()) and min(poly.all_y()) <= p.get_y() <= max(poly.all_y()):
+        if min_x <= p.get_x() <= max_x and min_y <= p.get_y() <= max_y:
             p.set_state('in_bb')
 
 
@@ -90,3 +98,5 @@ def set_rem_state(points):
     """
     for point in [p for p in points if p.get_state() != 'inside' and p.get_state() != 'boundary']:
         point.set_state('outside')
+
+
