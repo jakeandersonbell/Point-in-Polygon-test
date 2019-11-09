@@ -9,7 +9,8 @@ import io_functions as io
 if __name__ == "__main__":
 
     # Check to see if user has inputted geometry csv file paths as arguments
-    polygon_file, points_file = io.command_line_args(sys.argv)[0], io.command_line_args(sys.argv)[1]
+    files = io.command_line_args(sys.argv)
+    polygon_file, points_file = files[0], files[1]
 
     # Read csv
     pl1 = io.read_csv(polygon_file, 'polygon', name='Poly1', trans_options=True)

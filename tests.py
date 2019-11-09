@@ -3,7 +3,6 @@
 
 import geometry_class as geo
 import math
-import matplotlib.pyplot as plt
 
 
 def all_tests(points, poly):
@@ -98,5 +97,3 @@ def set_rem_state(points):
     """
     for point in [p for p in points if p.get_state() != 'inside' and p.get_state() != 'boundary']:
         point.set_state('outside')
-
-

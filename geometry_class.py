@@ -38,18 +38,27 @@ class MultiGeometry(Geometry):
     def make_poly(self, name):  # Returns a Polygon object
         return Polygon(name, self.__points)
 
-    def invert(self):  # Returns inverted coordinates
-        return MultiGeometry(self.__name, [[c * -1 for c in p] for p in self.__points])  # c = coordinate, p = point
+    def invert(self):  # Returns inverted coordinates while maintaining original center
+        shift = [min(self.all_x()) + (max(self.all_x())), min(self.all_y()) + (max(self.all_y()))]
+        self.__points = [[c * -1 for c in p] for p in self.__points]  # c = coordinate, p = point
+        for p in self.__points:
+            p[0] += shift[0]
+            p[1] += shift[1]
 
     def scale(self, factor):  # Returns coordinates scaled by a given factor
-        return MultiGeometry(self.__name, [[c * factor for c in p] for p in self.__points])  # c = coordinate, p = point
+        self.__points = [[c * factor for c in p] for p in self.__points]  # c = coordinate, p = point
 
     def rotate(self, degrees, o):
+        """Returns point coordinates after rotation.
+        Takes angle in degrees and origin coordinates
+        as arguments.
+        """
         angle = radians(degrees)
         for i, p in enumerate(self.__points):
+            # Do the formula with the origin coordinates subtracted from point coordinates, makes origin the 0,0
             p[0] = ((p[0] - o[0]) * cos(angle)) - ((p[1] - o[1]) * sin(angle))
             p[1] = ((p[0] - o[0]) * sin(angle)) + ((p[1] - o[1]) * cos(angle))
-            p[0] += o[0]
+            p[0] += o[0]  # add the origin back on after the calculation
             p[1] += o[1]
             self.__points[i] = p
 
@@ -133,8 +142,8 @@ class Polygon(MultiGeometry):
     def scale(self, factor):  # See MultiGeometry
         return Polygon(self.__name, super().scale(factor))
 
-    def rotate(self, radians):  # See MultiGeometry
-        return Polygon(self.__name, super().rotate(radians))
+    def rotate(self, degrees, o):  # See MultiGeometry
+        return Polygon(self.__name, super().rotate(degrees, o))
 
     def get_coords(self):  # Return a list of coordinate pair lists
         return self.__points
@@ -170,5 +179,3 @@ class Polygon(MultiGeometry):
         sum_x += self.all_x()[last_v] * self.all_y()[0]
         sum_y += self.all_x()[0] * self.all_y()[last_v]
         return abs(sum_x - sum_y)/2
-
-

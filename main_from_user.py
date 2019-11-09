@@ -1,18 +1,14 @@
 
 """This is the program for reading csv and user input"""
 
-import sys
 import plotter as plt
 import tests as test
 import io_functions as io
 
 if __name__ == "__main__":
 
-    # Check if file paths have been given as command line arguments
-    polygon_file, points_file = io.command_line_args(sys.argv)[0], io.command_line_args(sys.argv)[1]
-
     # Read csv and user input
-    pl1 = io.read_csv(polygon_file, 'polygon', name='Poly1', trans_options=True)
+    pl1 = io.read_csv('polygon.csv', 'polygon', name='Poly1', trans_options=True)
     ps1 = io.user_input('points', trans_options=True)
 
     # Transformation options allows user to transform geometries
